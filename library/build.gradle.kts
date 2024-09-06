@@ -1,9 +1,11 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-android")
     id("kotlin-kapt")
-    id("dagger.hilt.android.plugin")
+    alias(libs.plugins.hilt)
+    id("maven-publish")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -15,11 +17,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.sarang.torang.CustomTestRunner"
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.6"
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 
     compileOptions {
@@ -27,49 +32,34 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
     }
 
-    hilt {
-        enableTransformForLocalTests = true
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.6"
     }
 }
 
 dependencies {
-    /** HILT */
+    // HILT
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.nav.compose) // hiltViewModel
 
-    /** Retrofit */
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.logging.interceptor)
-
-    /** Room */
-    implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
-    implementation(libs.room.paging)
-
-    /** TEST Start */
+    // Testing Start
     testImplementation(libs.junit)
     androidTestImplementation(libs.x.junit.ext)
     androidTestImplementation(libs.x.espresso.core)
     testImplementation(libs.kotlinx.coroutines.test) // coroutines unit test
     androidTestImplementation(libs.x.ui.test.junit4) // Test rules and transitive dependencies
     debugImplementation(libs.x.ui.test.manifest) // Needed for createAndroidComposeRule, but not createComposeRule
+    testImplementation(libs.mockito.core) // Mockito
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.core.testing) // AndroidX Core Testing
+    // Testing End
 
-    // Hilt Start
-    // For Robolectric tests.
-    testImplementation(libs.hilt.testing)
-    kaptTest(libs.hilt.compiler)
-    testAnnotationProcessor(libs.hilt.compiler)
-
-    // For instrumented tests.
-    androidTestImplementation(libs.hilt.testing)
-    kaptAndroidTest(libs.hilt.compiler)
-    androidTestAnnotationProcessor(libs.hilt.compiler)
-    // Hilt End
-    /** TEST End */
-
-    /** Compose */
+    // Compose
     androidTestImplementation(platform(libs.x.compose.bom))
     implementation(libs.x.ui) //없으면 @Composable import 안됨
     implementation(libs.x.ui.graphics)
@@ -78,11 +68,8 @@ dependencies {
     implementation(libs.material3) //JetNews Main 따라하기
     implementation(libs.material3.windows.size)
     implementation(libs.lifecycle.runtime.compose)
-    implementation(libs.nav.compose)
-    androidTestImplementation(libs.x.ui.test.junit4) //runTest
-    debugImplementation(libs.x.ui.test.manifest) // Needed for createAndroidComposeRule, but not createComposeRule:
 
-    /** Navigation start */
+    // Navigation start
     // Kotlin
     implementation(libs.nav.fragment.ktx)
     implementation(libs.nav.ui.ktx)
@@ -95,10 +82,21 @@ dependencies {
 
     // Jetpack Compose Integration
     implementation(libs.nav.compose)
-    /** Navigation end */
+    implementation(libs.kotlinx.serialization.json)
+    // Navigation end
 
-    implementation(project(":library"))
+    implementation(libs.constraintlayout.compose)
+}
 
-    implementation(libs.torangRepository)
-    implementation(libs.theme)
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.jitpack"
+                artifactId = "android-example"
+                version = "1.0"
+            }
+        }
+    }
 }

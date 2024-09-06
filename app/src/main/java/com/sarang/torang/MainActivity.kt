@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.samples.apps.sunflower.ui.TorangTheme
 import com.sarang.torang.ui.theme.ChatTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,8 +41,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ChatTheme {
-        Greeting("Android")
+fun ChatScreenPreview() {
+    TorangTheme {
+        ChatScreen(nick = "Torang", onClose = {})
     }
 }
