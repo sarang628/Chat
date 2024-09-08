@@ -1,4 +1,4 @@
-package com.sarang.torang
+package com.sarang.torang.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +44,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sarang.torang.R
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,8 +55,11 @@ fun ChatScreen(
     onSearch: () -> Unit,
     onChat: (Int) -> Unit,
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
+    pullToRefreshLayout: @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
+    onRefresh: () -> Unit,
 ) {
     val uiState = viewmodel.uiState
+    val coroutine = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(navigationIcon = {
@@ -84,7 +90,14 @@ fun ChatScreen(
                 }
 
                 is ChatUiState.Success -> {
-                    Chat(uiState, image = image, onSearch = onSearch, onChat = onChat)
+                    pullToRefreshLayout?.invoke(false, {
+                        coroutine.launch {
+                            viewmodel.refresh()
+                            onRefresh.invoke()
+                        }
+                    }, {
+                        Chat(uiState, image = image, onSearch = onSearch, onChat = onChat)
+                    })
                 }
 
                 is ChatUiState.Error -> {
@@ -140,7 +153,7 @@ private fun Chat(
                 }
             }
             items(uiState.chatItems.size) {
-                ChatItem(uiState.chatItems[it], image = image, onClick = onChat)
+                ChatRoom(uiState.chatItems[it], image = image, onClick = onChat)
             }
         }
     }
@@ -183,8 +196,8 @@ private fun Tabs() {
 }
 
 @Composable
-fun ChatItem(
-    uiState: ChatItemUiState,
+fun ChatRoom(
+    uiState: ChatRoomUiState,
     onClick: (Int) -> Unit,
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
@@ -229,11 +242,11 @@ fun ChatItem(
 @Preview(showBackground = true)
 @Composable
 fun ChatScreenPreview() {
-    ChatScreen(onClose = {}, onChat = {}, onSearch = {})
+    ChatScreen(onClose = {}, onChat = {}, onSearch = {}, onRefresh = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ChatItemPreview() {
-    ChatItem(ChatItemUiState(0, "Torang", "10:00", ""), onClick = {})
+    ChatRoom(ChatRoomUiState(0, "Torang", "10:00", ""), onClick = {})
 }
