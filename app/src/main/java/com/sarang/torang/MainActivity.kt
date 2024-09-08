@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.samples.apps.sunflower.ui.TorangTheme
+import com.sarang.torang.di.image.provideTorangAsyncImage
 import com.sarang.torang.ui.theme.ChatTheme
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +44,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun ChatScreenPreview() {
     TorangTheme {
-        ChatScreen(nick = "Torang", onClose = {})
+        ChatScreen(onClose = {}, image = provideTorangAsyncImage(), onChat = {}, onSearch = {})
     }
 }
