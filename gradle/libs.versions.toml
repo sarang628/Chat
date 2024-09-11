@@ -52,6 +52,10 @@ featureDeliveryVersion = "2.1.0"
 serialization = "1.7.10"
 media3Exoplayer = "1.4.0"
 media3Ui = "1.4.0"
+appcompatVersion = "1.7.0"
+materialVersion = "1.12.0"
+activityVersion = "1.9.2"
+constraintlayoutVersion = "2.1.4"
 
 # @formatter:off
 [libraries]
@@ -138,6 +142,10 @@ feature-delivery                = { group = "com.google.android.play", name = "f
 
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
+material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activityVersion" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayoutVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

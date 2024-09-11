@@ -1,5 +1,6 @@
 package com.sarang.torang
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -56,7 +57,14 @@ class MainActivity : ComponentActivity() {
                                 ChatScreen(
                                     onClose = { /*TODO*/ },
                                     onSearch = { /*TODO*/ },
-                                    onChat = {},
+                                    onChat = {
+                                        startActivity(
+                                            Intent(
+                                                this@MainActivity,
+                                                ChatActivity::class.java
+                                            )
+                                        )
+                                    },
                                     pullToRefreshLayout = providePullToRefresh(state),
                                     image = provideTorangAsyncImage(),
                                     onRefresh = {
