@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
                                     onSearch = { /*TODO*/ },
                                     onChat = {},
                                     pullToRefreshLayout = providePullToRefresh(state),
+                                    image = provideTorangAsyncImage(),
                                     onRefresh = {
                                         coroutine.launch {
                                             state.updateState(RefreshIndicatorState.Default)

@@ -1,9 +1,10 @@
 package com.sarang.torang.di.chat
 
+import android.text.TextUtils
+import com.sarang.torang.BuildConfig
 import com.sarang.torang.compose.ChatRoomUiState
 import com.sarang.torang.compose.ChatUiState
-import com.sarang.torang.data.entity.ChatRoomEntity
-import com.sarang.torang.data.remote.response.AlarmAlarmModel
+import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.usecase.GetChatRoomUseCase
 import com.sarang.torang.usecase.GetChatUseCase
@@ -13,6 +14,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import javax.inject.Singleton
 
@@ -21,19 +23,29 @@ import javax.inject.Singleton
 class ChatUseCaseModule {
     @Singleton
     @Provides
-    fun provideGetChatRoomUseCase(chatRepository: ChatRepository): GetChatRoomUseCase {
+    fun provideGetChatRoomUseCase(
+        chatRepository: ChatRepository,
+        loggedInUserDao: LoggedInUserDao,
+    ): GetChatRoomUseCase {
         return object : GetChatRoomUseCase {
             override fun invoke(): Flow<List<ChatRoomUiState>> {
-                return chatRepository.getChatRoom().map { list ->
-                    list.map { chatRoomEntity ->
-                        ChatRoomUiState(
-                            chatRoomEntity.roomId,
-                            "",
-                            "",
-                            ""
-                        )
+                return loggedInUserDao.getLoggedInUser()
+                    .combine(chatRepository.getChatRoomsWithParticipantsAndUsers()) { loggedInUser, list ->
+                        list.map { chatRoomEntity ->
+                            ChatRoomUiState(
+                                chatRoomEntity.chatRoomEntity.roomId,
+                                TextUtils.join(
+                                    ",",
+                                    chatRoomEntity.participantsWithUsers
+                                        .filter { it.userEntity.userId != loggedInUser?.userId }
+                                        .map { it.userEntity.userName }),
+                                "25 min ago",
+                                BuildConfig.PROFILE_IMAGE_SERVER_URL + chatRoomEntity.participantsWithUsers
+                                    .filter { it.userEntity.userId != loggedInUser?.userId }
+                                    .map { it.userEntity.profilePicUrl }[0]
+                            )
+                        }
                     }
-                }
             }
         }
     }
