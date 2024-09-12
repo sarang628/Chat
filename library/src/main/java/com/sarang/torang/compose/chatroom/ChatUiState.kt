@@ -1,4 +1,4 @@
-package com.sarang.torang.compose
+package com.sarang.torang.compose.chatroom
 
 sealed interface ChatUiState {
     object Loading : ChatUiState

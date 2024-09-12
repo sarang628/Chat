@@ -1,4 +1,4 @@
-package com.sarang.torang.compose
+package com.sarang.torang.compose.chatroom
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatViewModel @Inject constructor(
+class ChatRoomViewModel @Inject constructor(
     private val getChatRoomUseCase: GetChatRoomUseCase,
     private val loadChatRoomUseCase: LoadChatRoomUseCase,
 ) : ViewModel() {

@@ -1,4 +1,4 @@
-package com.sarang.torang.compose
+package com.sarang.torang.compose.chatroom
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,12 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sarang.torang.R
+import com.sarang.torang.data.ChatUser
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    viewmodel: ChatViewModel = hiltViewModel(),
+    viewmodel: ChatRoomViewModel = hiltViewModel(),
     onClose: () -> Unit,
     onSearch: () -> Unit,
     onChat: (Int) -> Unit,
@@ -58,8 +58,37 @@ fun ChatScreen(
     pullToRefreshLayout: @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
     onRefresh: () -> Unit,
 ) {
-    val uiState = viewmodel.uiState
     val coroutine = rememberCoroutineScope()
+    val uiState = viewmodel.uiState
+    ChatScreen(
+        uiState = uiState,
+        nickName = viewmodel.nickName,
+        onClose = onClose,
+        onSearch = onSearch,
+        onChat = onChat,
+        image = image,
+        pullToRefreshLayout = pullToRefreshLayout,
+        onRefresh = {
+            coroutine.launch {
+                viewmodel.refresh()
+                onRefresh.invoke()
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChatScreen(
+    uiState: ChatUiState,
+    nickName: String,
+    onClose: () -> Unit,
+    onSearch: () -> Unit,
+    onChat: (Int) -> Unit,
+    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
+    pullToRefreshLayout: @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
+    onRefresh: () -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(navigationIcon = {
@@ -69,7 +98,7 @@ fun ChatScreen(
                     )
                 }
             }, title = {
-                Text(text = viewmodel.nickName)
+                Text(text = nickName)
             }, actions = {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(
@@ -91,10 +120,7 @@ fun ChatScreen(
 
                 is ChatUiState.Success -> {
                     pullToRefreshLayout?.invoke(false, {
-                        coroutine.launch {
-                            viewmodel.refresh()
-                            onRefresh.invoke()
-                        }
+                        onRefresh.invoke()
                     }, {
                         Chat(uiState, image = image, onSearch = onSearch, onChat = onChat)
                     })
@@ -242,11 +268,13 @@ fun ChatRoom(
 @Preview(showBackground = true)
 @Composable
 fun ChatScreenPreview() {
-    ChatScreen(onClose = {}, onChat = {}, onSearch = {}, onRefresh = {})
+    ChatScreen(uiState = ChatUiState.Success(
+
+    ), nickName = "nickName", onClose = {}, onChat = {}, onSearch = {}, onRefresh = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ChatItemPreview() {
-    ChatRoom(ChatRoomUiState(0, "Torang", "10:00", ""), onClick = {})
+    ChatRoom(ChatRoomUiState(0, "Torang", "", ""), onClick = {})
 }

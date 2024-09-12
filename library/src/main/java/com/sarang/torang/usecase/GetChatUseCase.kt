@@ -1,6 +1,6 @@
 package com.sarang.torang.usecase
 
-import com.sarang.torang.compose.ChatUiState
+import com.sarang.torang.compose.chatroom.ChatUiState
 import kotlinx.coroutines.flow.Flow
 
 interface GetChatUseCase {
