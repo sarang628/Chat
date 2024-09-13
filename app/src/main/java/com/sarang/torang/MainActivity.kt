@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.samples.apps.sunflower.ui.TorangTheme
 import com.sarang.torang.compose.chatroom.ChatScreen
-import com.sarang.torang.di.chat_di.ChatActivity
+//import com.sarang.torang.di.chat_di.ChatActivity
 import com.sarang.torang.di.image.provideTorangAsyncImage
 import com.sarang.torang.di.providePullToRefresh
 import com.sarang.torang.repository.LoginRepository
@@ -57,14 +57,14 @@ class MainActivity : ComponentActivity() {
                                     onClose = { /*TODO*/ },
                                     onSearch = { /*TODO*/ },
                                     onChat = {
-                                        startActivity(
+                                        /*startActivity(
                                             Intent(
                                                 this@MainActivity,
                                                 ChatActivity::class.java
                                             ).apply {
                                                 putExtra("userId", it)
                                             }
-                                        )
+                                        )*/
                                     },
                                     pullToRefreshLayout = providePullToRefresh(state),
                                     image = provideTorangAsyncImage(),
