@@ -1,5 +1,6 @@
 package com.sarang.torang.compose.chatroom
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,11 +39,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sarang.torang.R
 import com.sarang.torang.data.ChatUser
@@ -179,7 +185,7 @@ private fun Chat(
                 }
             }
             items(uiState.chatItems.size) {
-                ChatRoom(uiState.chatItems[it], image = image, onClick = onChat)
+                ChatRoomItem(uiState.chatItems[it], image = image, onClick = onChat)
             }
         }
     }
@@ -222,20 +228,51 @@ private fun Tabs() {
 }
 
 @Composable
-fun ChatRoom(
+fun ChatRoomItem(
     uiState: ChatRoomUiState,
     onClick: (Int) -> Unit,
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick.invoke(uiState.id) }) {
-        Row(
-            Modifier.height(70.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    ConstraintLayout(
+        modifier = Modifier
+            .height(70.dp)
+            .clickable { onClick.invoke(uiState.id) }
+            .fillMaxWidth(),
+        constraintSet = ConstraintSet {
+            val image = createRefFor("image")
+            val camera = createRefFor("camera")
+            val nickName = createRefFor("nickName")
+            val seenTime = createRefFor("seenTime")
+            constrain(image) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+            }
+
+            constrain(camera) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                end.linkTo(parent.end)
+            }
+
+            constrain(nickName) {
+                top.linkTo(image.top)
+                bottom.linkTo(seenTime.top)
+                start.linkTo(image.end, 8.dp)
+                end.linkTo(camera.start)
+                width = Dimension.fillToConstraints
+            }
+            constrain(seenTime) {
+                top.linkTo(nickName.bottom)
+                bottom.linkTo(image.bottom)
+                start.linkTo(image.end, 8.dp)
+            }
+        }
+    ) {
+        if (!uiState.isMultiple) {
             image.invoke(
                 Modifier
+                    .layoutId("image")
                     .size(50.dp)
                     .clip(CircleShape)
                     .background(Color(0x11000000)),
@@ -244,17 +281,43 @@ fun ChatRoom(
                 30.dp,
                 ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = uiState.nickName)
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(text = uiState.seenTime)
+        } else {
+            Box(modifier = Modifier.layoutId("image")) {
+                image.invoke(
+                    Modifier
+                        .layoutId("image")
+                        .size(50.dp)
+                        .padding(end = 8.dp, bottom = 8.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFEEEEEE)),
+                    uiState.profileUrl,
+                    30.dp,
+                    30.dp,
+                    ContentScale.Crop
+                )
+                image.invoke(
+                    Modifier
+                        .layoutId("image")
+                        .size(50.dp)
+                        .padding(start = 8.dp, top = 5.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFEEEEEE)),
+                    uiState.list[1].profileUrl,
+                    30.dp,
+                    30.dp,
+                    ContentScale.Crop
+                )
             }
         }
-        IconButton(modifier = Modifier.align(Alignment.CenterEnd),
+
+        Text(
+            text = uiState.nickName,
+            modifier = Modifier.layoutId("nickName"),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(text = uiState.seenTime, modifier = Modifier.layoutId("seenTime"))
+        IconButton(modifier = Modifier.layoutId("camera"),
             onClick = { /*TODO*/ }) {
             Icon(
                 modifier = Modifier.size(25.dp),
@@ -269,12 +332,83 @@ fun ChatRoom(
 @Composable
 fun ChatScreenPreview() {
     ChatScreen(uiState = ChatUiState.Success(
-
-    ), nickName = "nickName", onClose = {}, onChat = {}, onSearch = {}, onRefresh = {})
+        chatItems = listOf(
+            ChatRoomUiState(
+                0,
+                "10min",
+                listOf(
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                )
+            ),
+            ChatRoomUiState(
+                0,
+                "15min",
+                listOf(
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                )
+            ),
+            ChatRoomUiState(
+                0,
+                "20min",
+                listOf(
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                    ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
+                )
+            ),
+            ChatRoomUiState(
+                0,
+                "26min",
+                listOf(ChatUser(nickName = "nickName", profileUrl = "1", id = "id"))
+            ),
+        )
+    ), nickName = "nickName",
+        onClose = {},
+        onChat = {},
+        onSearch = {},
+        onRefresh = {},
+        image = { modifier, _, _, _, _ ->
+            Image(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.gal),
+                contentDescription = ""
+            )
+        },
+        pullToRefreshLayout = { _, _, contents ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                contents.invoke()
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ChatItemPreview() {
-    ChatRoom(ChatRoomUiState(0, "Torang", "", ""), onClick = {})
+fun ChatRoomItemPreview() {
+    ChatRoomItem(
+        uiState = ChatRoomUiState(
+            0,
+            "Torang",
+            listOf(
+                ChatUser(nickName = "amy", profileUrl = "1", id = "id"),
+                ChatUser(nickName = "jhone", profileUrl = "1", id = "id"),
+                ChatUser(nickName = "frank", profileUrl = "1", id = "id")
+            )
+        ),
+        onClick = {},
+        image = { modifier, _, _, _, _ ->
+            Image(
+                modifier = modifier,
+                painter = painterResource(id = R.drawable.gal),
+                contentDescription = ""
+            )
+        }
+    )
 }

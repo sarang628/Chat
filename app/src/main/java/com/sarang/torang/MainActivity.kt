@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
             val height = LocalConfiguration.current.screenHeightDp.dp
             val state = rememberPullToRefreshState()
             val coroutine = rememberCoroutineScope()
-            ChatTheme {
+            TorangTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         modifier = Modifier.padding(innerPadding)
@@ -62,7 +62,9 @@ class MainActivity : ComponentActivity() {
                                             Intent(
                                                 this@MainActivity,
                                                 ChatActivity::class.java
-                                            )
+                                            ).apply {
+                                                putExtra("userId", it)
+                                            }
                                         )
                                     },
                                     pullToRefreshLayout = providePullToRefresh(state),
