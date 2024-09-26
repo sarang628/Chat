@@ -11,6 +11,7 @@ sealed interface ChatUiState {
         ChatUiState
 
     data class Error(val message: String) : ChatUiState
+    object Logout : ChatUiState
 }
 
 data class ChatRoomUiState(

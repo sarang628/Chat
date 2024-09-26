@@ -10,7 +10,13 @@ import com.sarang.torang.usecase.GetChatUseCase
 import com.sarang.torang.usecase.GetUserByRoomIdUseCase
 import com.sarang.torang.usecase.LoadChatUseCase
 import com.sarang.torang.usecase.SendChatUseCase
+import com.sarang.torang.usecase.SetSocketCloseUseCase
+import com.sarang.torang.usecase.SetSocketListenerUseCase
+import com.sarang.torang.usecase.SubScribeRoomUseCase
+import com.sarang.torang.usecase.WebSocketListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,7 +26,40 @@ class ChatViewModel @Inject constructor(
     private val sendChatUseCase: SendChatUseCase,
     private val getChatUseCase: GetChatUseCase,
     private val loadChatUseCase: LoadChatUseCase,
+    private val setSocketListenerUseCase: SetSocketListenerUseCase,
+    private val setSetSocketCloseUseCase: SetSocketCloseUseCase,
+    private val setSubScribeRoomUseCase: SubScribeRoomUseCase,
 ) : ViewModel() {
+
+    init {
+        setSocketListenerUseCase.invoke(object : WebSocketListener {
+            override fun onOpen() {
+                Log.d("__ChatViewModel", "onOpen")
+            }
+
+            override fun onMessage() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onClosing() {
+                Log.d("__ChatViewModel", "onClosing")
+            }
+
+            override fun onClosed() {
+                Log.d("__ChatViewModel", "onClosed")
+            }
+
+            override fun onFailure() {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("__ChatViewModel", "onCleared")
+        setSetSocketCloseUseCase.invoke()
+    }
 
     var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading)
         private set
@@ -52,7 +91,7 @@ class ChatViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getUserUseCase.invoke(roomId).collect {
-                Log.d("__ChatViewModel", "loaded user list : $it")
+                //Log.d("__ChatViewModel", "loaded user list : $it")
                 if (uiState is ChatUiState.Loading)
                     uiState = ChatUiState.Success(
                         user = it ?: listOf(), id = "", roomId = roomId
@@ -64,7 +103,7 @@ class ChatViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getChatUseCase.invoke(roomId).collect {
-                Log.d("__ChatViewModel", "loaded chat list : $it")
+                //Log.d("__ChatViewModel", "loaded chat list : $it")
                 if (uiState is ChatUiState.Loading)
                     uiState = ChatUiState.Success(
                         chats = it, id = "", roomId = roomId
@@ -73,6 +112,10 @@ class ChatViewModel @Inject constructor(
                     uiState = (uiState as ChatUiState.Success).copy(chats = it)
                 }
             }
+        }
+
+        viewModelScope.launch {
+            setSubScribeRoomUseCase.invoke(roomId)
         }
     }
 }

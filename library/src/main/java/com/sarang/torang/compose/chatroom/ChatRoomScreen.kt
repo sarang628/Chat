@@ -1,5 +1,6 @@
 package com.sarang.torang.compose.chatroom
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.isTraceInProgress
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,6 +96,7 @@ private fun ChatScreen(
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
     pullToRefreshLayout: @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
     onRefresh: () -> Unit,
+    onSignIn: () -> Unit = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
 ) {
     Scaffold(
         topBar = {
@@ -134,6 +137,18 @@ private fun ChatScreen(
 
                 is ChatUiState.Error -> {
 
+                }
+
+                is ChatUiState.Logout -> {
+                    Column(
+                        Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "로그인을 해주세요.")
+                        Button(onClick = onSignIn) {
+                            Text(text = "SIGN IN WITH EMAIL")
+                        }
+                    }
                 }
             }
         }
