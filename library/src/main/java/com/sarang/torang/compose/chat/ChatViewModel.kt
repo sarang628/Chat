@@ -11,12 +11,8 @@ import com.sarang.torang.usecase.GetUserByRoomIdUseCase
 import com.sarang.torang.usecase.LoadChatUseCase
 import com.sarang.torang.usecase.SendChatUseCase
 import com.sarang.torang.usecase.SetSocketCloseUseCase
-import com.sarang.torang.usecase.SetSocketListenerUseCase
 import com.sarang.torang.usecase.SubScribeRoomUseCase
-import com.sarang.torang.usecase.WebSocketListener
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,39 +22,18 @@ class ChatViewModel @Inject constructor(
     private val sendChatUseCase: SendChatUseCase,
     private val getChatUseCase: GetChatUseCase,
     private val loadChatUseCase: LoadChatUseCase,
-    private val setSocketListenerUseCase: SetSocketListenerUseCase,
     private val setSetSocketCloseUseCase: SetSocketCloseUseCase,
     private val setSubScribeRoomUseCase: SubScribeRoomUseCase,
 ) : ViewModel() {
 
-    init {
-        setSocketListenerUseCase.invoke(object : WebSocketListener {
-            override fun onOpen() {
-                Log.d("__ChatViewModel", "onOpen")
-            }
-
-            override fun onMessage() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onClosing() {
-                Log.d("__ChatViewModel", "onClosing")
-            }
-
-            override fun onClosed() {
-                Log.d("__ChatViewModel", "onClosed")
-            }
-
-            override fun onFailure() {
-                TODO("Not yet implemented")
-            }
-        })
-    }
-
     override fun onCleared() {
         super.onCleared()
         Log.d("__ChatViewModel", "onCleared")
-        setSetSocketCloseUseCase.invoke()
+        if (uiState is ChatUiState.Success) {
+            (uiState as ChatUiState.Success).let {
+                setSetSocketCloseUseCase.invoke(it.roomId)
+            }
+        }
     }
 
     var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading)
@@ -115,7 +90,9 @@ class ChatViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            setSubScribeRoomUseCase.invoke(roomId)
+            setSubScribeRoomUseCase.invoke(roomId, viewModelScope).collect {
+                Log.d("__ChatViewModel", "event : $it")
+            }
         }
     }
 }
