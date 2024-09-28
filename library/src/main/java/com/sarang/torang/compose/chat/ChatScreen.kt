@@ -172,7 +172,7 @@ private fun LeftChatItem(
                             bottomEnd = 24.dp
                         )
                     )
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MaterialTheme.colorScheme.secondary)
                     .padding(
                         start = 12.dp,
                         end = 12.dp,
