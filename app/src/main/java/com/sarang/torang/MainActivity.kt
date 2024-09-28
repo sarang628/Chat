@@ -1,6 +1,5 @@
 package com.sarang.torang
 
-//import com.sarang.torang.di.chat_di.ChatActivity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -25,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.samples.apps.sunflower.ui.TorangTheme
 import com.sarang.torang.compose.chatroom.ChatScreen
-import com.sarang.torang.di.chat_di.ChatActivity
+//import com.sarang.torang.di.chat_di.ChatActivity
 import com.sarang.torang.di.image.provideTorangAsyncImage
 import com.sarang.torang.di.providePullToRefresh
 import com.sarang.torang.repository.LoginRepository
@@ -65,14 +64,14 @@ class MainActivity : ComponentActivity() {
                                     onClose = { /*TODO*/ },
                                     onSearch = { /*TODO*/ },
                                     onChat = {
-                                        startActivity(
+                                        /*startActivity(
                                             Intent(
                                                 this@MainActivity,
                                                 ChatActivity::class.java
                                             ).apply {
                                                 putExtra("roomId", it)
                                             }
-                                        )
+                                        )*/
                                     },
                                     pullToRefreshLayout = providePullToRefresh(state),
                                     image = provideTorangAsyncImage(),
@@ -88,14 +87,14 @@ class MainActivity : ComponentActivity() {
                                     try {
                                         val roomId = createRoomByUserIdUseCase.invoke(it)
 
-                                        startActivity(
+                                        /*startActivity(
                                             Intent(
                                                 this@MainActivity,
                                                 ChatActivity::class.java
                                             ).apply {
                                                 putExtra("roomId", roomId)
                                             }
-                                        )
+                                        )*/
 
                                     } catch (e: Exception) {
                                         Log.e("__MainActivity", e.message.toString())
