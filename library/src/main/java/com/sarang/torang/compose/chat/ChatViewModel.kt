@@ -95,4 +95,14 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    fun sendImages(images: List<String>) {
+        if (uiState is ChatUiState.Success) {
+            (uiState as ChatUiState.Success).let {
+                viewModelScope.launch {
+
+                }
+            }
+        }
+    }
 }

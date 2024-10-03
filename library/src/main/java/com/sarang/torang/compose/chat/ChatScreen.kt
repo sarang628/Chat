@@ -70,6 +70,7 @@ fun ChatScreen(
     galleryBottomSheetScaffoldCompose: @Composable (
         show: Boolean,
         onHidden: () -> Unit,
+        onSend: (List<String>) -> Unit,
         sheetContents: @Composable () -> Unit,
         content: @Composable (PaddingValues) -> Unit,
     ) -> Unit,
@@ -84,7 +85,9 @@ fun ChatScreen(
 
     galleryBottomSheetScaffoldCompose.invoke(
         show,
+        { show = false },
         {
+            viewModel.sendImages(it)
             show = false
         },
         { galleryCompose.invoke() },
