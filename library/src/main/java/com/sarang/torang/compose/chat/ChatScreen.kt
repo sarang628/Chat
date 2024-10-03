@@ -3,8 +3,6 @@ package com.sarang.torang.compose.chat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,6 +66,13 @@ fun ChatScreen(
     roomId: Int,
     viewModel: ChatViewModel = hiltViewModel(),
     onBack: () -> Unit,
+    galleryCompose: @Composable () -> Unit,
+    galleryBottomSheetScaffoldCompose: @Composable (
+        show: Boolean,
+        onHidden: () -> Unit,
+        sheetContents: @Composable () -> Unit,
+        content: @Composable (PaddingValues) -> Unit,
+    ) -> Unit,
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
     LaunchedEffect(key1 = roomId) {
@@ -76,11 +80,28 @@ fun ChatScreen(
             viewModel.loadUserByRoomId(roomId)
     }
     val uiState = viewModel.uiState
-    ChatScreen(uiState = uiState,
-        image = image,
-        onBack = onBack,
-        onValueChange = { viewModel.onMessageChange(it) },
-        onSend = { viewModel.onSend() })
+    var show by remember { mutableStateOf(false) }
+
+    galleryBottomSheetScaffoldCompose.invoke(
+        show,
+        {
+            show = false
+        },
+        { galleryCompose.invoke() },
+        {
+            ChatScreen(
+                uiState = uiState,
+                image = image,
+                onBack = onBack,
+                onValueChange = { viewModel.onMessageChange(it) },
+                onSend = { viewModel.onSend() },
+                onPicture = {
+                    show = true
+                }
+            )
+        }
+    )
+
 }
 
 
@@ -284,6 +305,7 @@ private fun ChatScreen(
     onBack: () -> Unit,
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
+    onPicture: () -> Unit,
     image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
     Scaffold(
@@ -320,7 +342,8 @@ private fun ChatScreen(
                         .fillMaxWidth(),
                     uiState = uiState,
                     onValueChange = onValueChange,
-                    onSend = onSend
+                    onSend = onSend,
+                    onPicture = onPicture
                 )
             }
         }
@@ -430,6 +453,7 @@ private fun ChatScreenInput(
     uiState: ChatUiState.Success,
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
+    onPicture: () -> Unit,
 ) {
     TextField(value = uiState.message,
         onValueChange = onValueChange,
@@ -461,7 +485,7 @@ private fun ChatScreenInput(
                             contentDescription = ""
                         )
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onPicture) {
                         Icon(
                             modifier = Modifier.size(20.dp),
                             painter = painterResource(id = R.drawable.gal),
@@ -498,7 +522,7 @@ fun ChatScreenPreview1(
 ) {
     var message by remember { mutableStateOf("") }
     var list: List<Chat> by remember { mutableStateOf(listOf()) }
-    ChatScreen(uiState = ChatUiState.Success(
+    ChatScreen(uiState = ChatUiState.Success(/*Preview*/
         user = listOf(ChatUser(nickName = "nickName", id = "", profileUrl = "")),
         message = message,
         chats = list,
@@ -510,6 +534,9 @@ fun ChatScreenPreview1(
         onSend = {
             //list = list + message
             message = ""
+        },
+        onPicture = {
+
         })
 }
 

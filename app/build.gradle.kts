@@ -128,4 +128,7 @@ dependencies {
     implementation(libs.theme)
     implementation(libs.commonImageLoader)
     implementation(libs.mui3scrolltorefresh)
+    implementation(libs.instagramGallery)
+    implementation(libs.mediaContentResolver)
+    implementation(libs.torangBottomSheet)
 }
