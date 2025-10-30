@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.samples.apps.sunflower.ui.TorangTheme
 import com.sarang.torang.compose.chatroom.ChatScreen
 //import com.sarang.torang.di.chat_di.ChatActivity
 //import com.sarang.torang.di.chat_di.ChatActivity
@@ -33,6 +32,7 @@ import com.sarang.torang.repository.LoginRepositoryTest
 import com.sarang.torang.usecase.GetUserOrCreateRoomByUserIdUseCase
 import com.sryang.library.pullrefresh.RefreshIndicatorState
 import com.sryang.library.pullrefresh.rememberPullToRefreshState
+import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
