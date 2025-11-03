@@ -6,7 +6,7 @@ import com.sarang.torang.data.ChatUser
 
 sealed interface ChatUiState {
     data class Success(
-        val roomId: Int,
+        val roomId: Int = 0,
         val id: String = "",
         val message: String = "",
         val user: List<ChatUser> = listOf(),

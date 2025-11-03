@@ -28,7 +28,7 @@ import com.sarang.torang.compose.chatroom.ChatScreen
 import com.sarang.torang.di.image.provideTorangAsyncImage
 import com.sarang.torang.di.providePullToRefresh
 import com.sarang.torang.repository.LoginRepository
-import com.sarang.torang.repository.LoginRepositoryTest
+import com.sarang.torang.repository.test.LoginRepositoryTest
 import com.sarang.torang.usecase.GetUserOrCreateRoomByUserIdUseCase
 import com.sryang.library.pullrefresh.RefreshIndicatorState
 import com.sryang.library.pullrefresh.rememberPullToRefreshState

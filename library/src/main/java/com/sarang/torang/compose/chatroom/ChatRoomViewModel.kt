@@ -22,11 +22,8 @@ class ChatRoomViewModel @Inject constructor(
     private val isSignInUseCase: IsSignInUseCase,
 ) : ViewModel() {
 
-    var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading)
-        private set
-
-    var nickName by mutableStateOf("")
-        private set
+    var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading); private set
+    var nickName by mutableStateOf(""); private set
 
     init {
         viewModelScope.launch {
