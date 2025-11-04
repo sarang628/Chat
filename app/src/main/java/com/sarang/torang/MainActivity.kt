@@ -60,9 +60,16 @@ fun ChatNavigation(loginRepository : LoginRepository){
     val coroutine = rememberCoroutineScope()
     val context = LocalContext.current
 
-    NavHost(navController = navController, startDestination = "ChatScreen"){
+    NavHost(navController = navController, startDestination = "menu"){
         composable("menu"){
-
+            Column {
+                Button({navController.navigate("LoginRepositoryTest")}) {
+                    Text("LoginRepositoryTest")
+                }
+                Button({navController.navigate("ChatScreen")}) {
+                    Text("ChatScreen")
+                }
+            }
         }
         composable("LoginRepositoryTest"){
             LoginRepositoryTest(loginRepository = loginRepository)
