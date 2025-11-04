@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -29,8 +28,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 internal fun LeftChatItem(
     message: String = "",
-    profileUrl: String = "",
-    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
+    profileUrl: String = ""
 ) {
     Box(
         modifier = Modifier
@@ -41,16 +39,17 @@ internal fun LeftChatItem(
             Modifier.align(Alignment.CenterStart),
             verticalAlignment = Alignment.Bottom
         ) {
-            image.invoke(
-                Modifier
+            LocalChatImageLoader.current.invoke(
+                ChatImageLoaderData(
+                modifier = Modifier
                     .layoutId("image")
                     .size(30.dp)
                     .clip(CircleShape)
                     .background(Color(0x11000000)),
-                profileUrl,
-                30.dp,
-                30.dp,
-                ContentScale.Crop
+                url = profileUrl,
+                iconSize = 30.dp,
+                progressSize = 30.dp,
+                contentScale = ContentScale.Crop)
             )
             Spacer(modifier = Modifier.width(5.dp))
             Column(

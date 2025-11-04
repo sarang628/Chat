@@ -33,7 +33,6 @@ fun Chat(
     uiState: ChatUiState.Success = ChatUiState.Success(),
     onSearch: () -> Unit = {},
     onChat: (Int) -> Unit = {},
-    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
     Column {
         LazyColumn {
@@ -73,7 +72,7 @@ fun Chat(
                 }
             }
             items(uiState.chatItems.size) {
-                ChatRoomItem(uiState.chatItems[it], image = image, onClick = onChat)
+                ChatRoomItem(uiState.chatItems[it], onClick = onChat)
             }
         }
     }

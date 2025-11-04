@@ -40,7 +40,6 @@ import com.sarang.torang.R
 internal fun ChatScreenTopBar(
     onBack: () -> Unit = {},
     uiState: ChatUiState.Success = ChatUiState.Success(),
-    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
 ) {
     TopAppBar(navigationIcon = {
         IconButton(onClick = onBack) {
@@ -53,42 +52,48 @@ internal fun ChatScreenTopBar(
         title = {
             Row(Modifier.height(50.dp)) {
                 if (!uiState.isMultiple) {
-                    image.invoke(
-                        Modifier
-                            .layoutId("image")
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .background(Color(0x11000000)),
-                        uiState.profileUrl,
-                        30.dp,
-                        30.dp,
-                        ContentScale.Crop
+                    LocalChatImageLoader.current.invoke(
+                        ChatImageLoaderData(
+                            modifier = Modifier
+                                .layoutId("image")
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(Color(0x11000000)),
+                            url = uiState.profileUrl,
+                            iconSize = 30.dp,
+                            progressSize = 30.dp,
+                            contentScale = ContentScale.Crop
+                        )
                     )
                 } else {
                     Box(modifier = Modifier.layoutId("image")) {
-                        image.invoke(
-                            Modifier
+                        LocalChatImageLoader.current.invoke(
+                            ChatImageLoaderData(
+                            modifier = Modifier
                                 .layoutId("image")
                                 .size(50.dp)
                                 .padding(end = 8.dp, bottom = 8.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFFEEEEEE)),
-                            uiState.profileUrl,
-                            30.dp,
-                            30.dp,
-                            ContentScale.Crop
+                            url = uiState.profileUrl,
+                            iconSize = 30.dp,
+                            progressSize = 30.dp,
+                            contentScale = ContentScale.Crop
+                            )
                         )
-                        image.invoke(
-                            Modifier
+                        LocalChatImageLoader.current.invoke(
+                            ChatImageLoaderData(
+                            modifier = Modifier
                                 .layoutId("image")
                                 .size(50.dp)
                                 .padding(start = 8.dp, top = 5.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFFEEEEEE)),
-                            uiState.user[1].profileUrl,
-                            30.dp,
-                            30.dp,
-                            ContentScale.Crop
+                            url = uiState.user[1].profileUrl,
+                            iconSize = 30.dp,
+                            progressSize = 30.dp,
+                            contentScale = ContentScale.Crop
+                            )
                         )
                     }
                 }

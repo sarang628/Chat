@@ -1,36 +1,29 @@
 package com.sarang.torang
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.sarang.torang.compose.chatroom.ChatScreen
-//import com.sarang.torang.di.chat_di.ChatActivity
-//import com.sarang.torang.di.chat_di.ChatActivity
-import com.sarang.torang.di.image.provideTorangAsyncImage
-import com.sarang.torang.di.providePullToRefresh
+import com.sarang.torang.di.chat_di.provideChatScreen
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.repository.test.LoginRepositoryTest
 import com.sarang.torang.usecase.GetUserOrCreateRoomByUserIdUseCase
-import com.sryang.library.pullrefresh.RefreshIndicatorState
 import com.sryang.library.pullrefresh.rememberPullToRefreshState
 import com.sryang.torang.ui.TorangTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,72 +33,62 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var loginRepository: LoginRepository
-
-    @Inject
-    lateinit var createRoomByUserIdUseCase: GetUserOrCreateRoomByUserIdUseCase
+    @Inject lateinit var loginRepository: LoginRepository
+    @Inject lateinit var createRoomByUserIdUseCase: GetUserOrCreateRoomByUserIdUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val height = LocalConfiguration.current.screenHeightDp.dp
-            val state = rememberPullToRefreshState()
-            val coroutine = rememberCoroutineScope()
             TorangTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                            Box(modifier = Modifier.height(height))
-                            {
-                                ChatScreen(
-                                    onClose = { /*TODO*/ },
-                                    onSearch = { /*TODO*/ },
-                                    onChat = {
-                                        /*startActivity(
-                                            Intent(
-                                                this@MainActivity,
-                                                ChatActivity::class.java
-                                            ).apply {
-                                                putExtra("roomId", it)
-                                            }
-                                        )*/
-                                    },
-                                    pullToRefreshLayout = providePullToRefresh(state),
-                                    image = provideTorangAsyncImage(),
-                                    onRefresh = {
-                                        coroutine.launch {
-                                            state.updateState(RefreshIndicatorState.Default)
-                                        }
-                                    }
-                                )
-                            }
-                            CreateOneToOneChatRoomTest(onClick = {
-                                coroutine.launch {
-                                    /*try {
-                                        val roomId = createRoomByUserIdUseCase.invoke(it)
-                                        startActivity(
-                                            Intent(
-                                                this@MainActivity,
-                                                ChatActivity::class.java
-                                            ).apply {
-                                                putExtra("roomId", roomId)
-                                            }
-                                        )
-
-                                    } catch (e: Exception) {
-                                        Log.e("__MainActivity", e.message.toString())
-                                    }*/
-                                }
-                            })
-                            LoginRepositoryTest(loginRepository = loginRepository)
-                        }
+                        ChatNavigation(loginRepository = loginRepository)
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ChatNavigation(loginRepository : LoginRepository){
+    val navController = rememberNavController()
+    val state = rememberPullToRefreshState()
+    val coroutine = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    NavHost(navController = navController, startDestination = "ChatScreen"){
+        composable("menu"){
+
+        }
+        composable("LoginRepositoryTest"){
+            LoginRepositoryTest(loginRepository = loginRepository)
+        }
+        composable("ChatScreen"){
+            provideChatScreen().invoke()
+        }
+        composable("CreateOneToOneChatRoomTest"){
+            CreateOneToOneChatRoomTest(onClick = {
+                coroutine.launch {
+                    /*try {
+                        val roomId = createRoomByUserIdUseCase.invoke(it)
+                        startActivity(
+                            Intent(
+                                this@MainActivity,
+                                ChatActivity::class.java
+                            ).apply {
+                                putExtra("roomId", roomId)
+                            }
+                        )
+
+                    } catch (e: Exception) {
+                        Log.e("__MainActivity", e.message.toString())
+                    }*/
+                }
+            })
         }
     }
 }
@@ -139,7 +122,6 @@ fun ChatScreenPreview() {
     TorangTheme {
         ChatScreen(
             onClose = {},
-            image = provideTorangAsyncImage(),
             onChat = {},
             onSearch = {},
             onRefresh = {})

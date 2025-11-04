@@ -1,6 +1,5 @@
 package com.sarang.torang.compose.chatroom
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,19 +20,19 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import com.sarang.torang.R
+import com.sarang.torang.compose.chat.ChatImageLoaderData
+import com.sarang.torang.compose.chat.LocalChatImageLoader
 import com.sarang.torang.data.ChatUser
 
 @Composable
 fun ChatRoomItem(
     uiState: ChatRoomUiState,
-    onClick: (Int) -> Unit,
-    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
+    onClick: (Int) -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -72,42 +71,45 @@ fun ChatRoomItem(
         }
     ) {
         if (!uiState.isMultiple) {
-            image.invoke(
-                Modifier
+            LocalChatImageLoader.current.invoke(
+                ChatImageLoaderData(
+                modifier = Modifier
                     .layoutId("image")
                     .size(50.dp)
                     .clip(CircleShape)
                     .background(Color(0x11000000)),
-                uiState.profileUrl,
-                30.dp,
-                30.dp,
-                ContentScale.Crop
-            )
+                url = uiState.profileUrl,
+                iconSize = 30.dp,
+                progressSize = 30.dp,
+                contentScale = ContentScale.Crop
+            ))
         } else {
             Box(modifier = Modifier.layoutId("image")) {
-                image.invoke(
-                    Modifier
+                LocalChatImageLoader.current.invoke(
+                    ChatImageLoaderData(
+                    modifier = Modifier
                         .layoutId("image")
                         .size(50.dp)
                         .padding(end = 8.dp, bottom = 8.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFEEEEEE)),
-                    uiState.profileUrl,
-                    30.dp,
-                    30.dp,
-                    ContentScale.Crop
+                    url = uiState.profileUrl,
+                    iconSize = 30.dp,
+                    progressSize = 30.dp,
+                    contentScale = ContentScale.Crop)
                 )
-                image.invoke(
-                    Modifier
+                LocalChatImageLoader.current.invoke(
+                    ChatImageLoaderData(
+                    modifier = Modifier
                         .layoutId("image")
                         .size(50.dp)
                         .padding(start = 8.dp, top = 5.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFEEEEEE)),
-                    uiState.list[1].profileUrl,
-                    30.dp,
-                    30.dp,
-                    ContentScale.Crop
+                    url = uiState.list[1].profileUrl,
+                    iconSize = 30.dp,
+                    progressSize = 30.dp,
+                    contentScale = ContentScale.Crop)
                 )
             }
         }
@@ -143,13 +145,6 @@ fun ChatRoomItemPreview() {
                 ChatUser(nickName = "frank", profileUrl = "1", id = "id")
             )
         ),
-        onClick = {},
-        image = { modifier, _, _, _, _ ->
-            Image(
-                modifier = modifier,
-                painter = painterResource(id = R.drawable.gal),
-                contentDescription = ""
-            )
-        }
+        onClick = {}
     )
 }

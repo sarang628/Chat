@@ -17,8 +17,7 @@ private fun ChatItemMe1(
     message: String,
     isMe: Boolean,
     profileUrl: String,
-    isSending: Boolean,
-    image: @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
+    isSending: Boolean
 ) {
     val density = LocalDensity.current
 
@@ -49,8 +48,7 @@ private fun ChatItemMe1(
     } else {
         LeftChatItem(
             message = message,
-            profileUrl = profileUrl,
-            image = image
+            profileUrl = profileUrl
         )
     }
 }

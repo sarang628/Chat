@@ -1,34 +1,27 @@
 package com.sarang.torang.compose.chatroom
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sarang.torang.R
+import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
+import com.sarang.torang.compose.chat.ChatTopAppBar
+import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
 import com.sarang.torang.data.ChatUser
 import kotlinx.coroutines.launch
 
@@ -38,8 +31,6 @@ fun ChatScreen(
     onClose             : () -> Unit,
     onSearch            : () -> Unit,
     onChat              : (Int) -> Unit,
-    image               : @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
-    pullToRefreshLayout : @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
     onRefresh           : () -> Unit,
 ) {
     val coroutine = rememberCoroutineScope()
@@ -50,8 +41,6 @@ fun ChatScreen(
         onClose             = onClose,
         onSearch            = onSearch,
         onChat              = onChat,
-        image               = image,
-        pullToRefreshLayout = pullToRefreshLayout,
         onRefresh           = {
             coroutine.launch {
                 viewmodel.refresh()
@@ -69,29 +58,17 @@ private fun ChatScreen(
     onClose             : () -> Unit,
     onSearch            : () -> Unit,
     onChat              : (Int) -> Unit,
-    image               : @Composable (Modifier, String, Dp?, Dp?, ContentScale?) -> Unit = { _, _, _, _, _ -> },
-    pullToRefreshLayout : @Composable ((isRefreshing: Boolean, onRefresh: (() -> Unit), contents: @Composable (() -> Unit)) -> Unit)? = null,
     onRefresh           : () -> Unit,
     onSignIn            : () -> Unit = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
 ) {
     Scaffold(
+        contentWindowInsets = WindowInsets(left = 12.dp, right = 12.dp),
         topBar = {
-            TopAppBar(navigationIcon = {
-                IconButton(onClick = onClose) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = ""
-                    )
-                }
-            }, title = {
-                Text(text = nickName)
-            }, actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle, contentDescription = ""
-                    )
-                }
-            })
-        }, contentWindowInsets = WindowInsets(left = 12.dp, right = 12.dp)
+            ChatTopAppBar(
+                nickName = nickName,
+                onClose = onClose
+            )
+        }
     ) {
         Box(
             modifier = Modifier
@@ -104,11 +81,11 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Success -> {
-                    pullToRefreshLayout?.invoke(false, {
-                        onRefresh.invoke()
-                    }, {
-                        Chat(uiState, image = image, onSearch = onSearch, onChat = onChat)
-                    })
+                    uiState.render(
+                        onRefresh = onRefresh,
+                        onSearch = onSearch,
+                        onChat = onChat
+                    )
                 }
 
                 is ChatUiState.Error -> {
@@ -116,17 +93,47 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Logout -> {
-                    Column(
-                        Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = "로그인을 해주세요.")
-                        Button(onClick = onSignIn) {
-                            Text(text = "SIGN IN WITH EMAIL")
-                        }
-                    }
+                    uiState.render(
+                        modifier = Modifier.align(Alignment.Center),
+                        onSignIn = onSignIn
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ChatUiState.Success.render(
+    onRefresh: () -> Unit = {},
+    onSearch: () -> Unit = {},
+    onChat: (Int) -> Unit = {}
+){
+    LocalChatPullToRefreshLayout.current.invoke(
+        ChatPullToRefreshLayoutData(
+            isRefreshing = false,
+            onRefresh = { onRefresh.invoke() },
+            contents = { Chat(
+                uiState = this,
+                onSearch = onSearch,
+                onChat = onChat)
+            }
+        )
+    )
+}
+
+@Composable
+fun ChatUiState.Logout.render(
+    modifier : Modifier,
+    onSignIn: () -> Unit = {}
+){
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "로그인을 해주세요.")
+        Button(onClick = onSignIn) {
+            Text(text = "SIGN IN WITH EMAIL")
         }
     }
 }
@@ -177,18 +184,6 @@ fun ChatScreenPreview() {
         onClose = {},
         onChat = {},
         onSearch = {},
-        onRefresh = {},
-        image = { modifier, _, _, _, _ ->
-            Image(
-                modifier = modifier,
-                painter = painterResource(id = R.drawable.gal),
-                contentDescription = ""
-            )
-        },
-        pullToRefreshLayout = { _, _, contents ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                contents.invoke()
-            }
-        }
+        onRefresh = {}
     )
 }
