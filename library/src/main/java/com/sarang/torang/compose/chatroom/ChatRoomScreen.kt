@@ -53,13 +53,13 @@ fun ChatScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChatScreen(
-    uiState             : ChatUiState,
-    nickName            : String,
-    onClose             : () -> Unit,
-    onSearch            : () -> Unit,
-    onChat              : (Int) -> Unit,
-    onRefresh           : () -> Unit,
-    onSignIn            : () -> Unit = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
+    uiState    : ChatUiState,
+    nickName   : String,
+    onClose    : () -> Unit,
+    onSearch   : () -> Unit,
+    onChat     : (Int) -> Unit,
+    onRefresh  : () -> Unit,
+    onSignIn   : () -> Unit = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(left = 12.dp, right = 12.dp),
@@ -103,6 +103,7 @@ private fun ChatScreen(
     }
 }
 
+@Preview
 @Composable
 fun ChatUiState.Success.render(
     onRefresh: () -> Unit = {},
