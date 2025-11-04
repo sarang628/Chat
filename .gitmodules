@@ -1,9 +1,6 @@
 [submodule "gradle/TorangToml"]
 	path = gradle/TorangToml
 	url = https://github.com/sarang628/TorangToml.git
-[submodule "app/src/main/java/com/sarang/torang/di/image/repository"]
-	path = app/src/main/java/com/sarang/torang/di/image/repository
-	url = https://github.com/sarang628/repository.git
 [submodule "chat_di"]
 	path = app/src/main/java/com/sarang/torang/di/chat_di
 	url = https://github.com/sarang628/chat_di.git
@@ -22,3 +19,6 @@
 [submodule "app/src/main/java/com/sarang/torang/di/torang_security_di"]
 	path = app/src/main/java/com/sarang/torang/di/torang_security_di
 	url = https://github.com/sarang628/torang_security_di.git
+[submodule "app/src/main/java/com/sarang/torang/di/repository"]
+	path = app/src/main/java/com/sarang/torang/di/repository
+	url = https://github.com/sarang628/repository.git
