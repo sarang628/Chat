@@ -2,7 +2,6 @@ package com.sarang.torang.compose.chatroom
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,7 +80,7 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Success -> {
-                    uiState.render(
+                    uiState.Render(
                         onRefresh = onRefresh,
                         onSearch = onSearch,
                         onChat = onChat
@@ -93,7 +92,7 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Logout -> {
-                    uiState.render(
+                    uiState.Render(
                         modifier = Modifier.align(Alignment.Center),
                         onSignIn = onSignIn
                     )
@@ -105,7 +104,7 @@ private fun ChatScreen(
 
 @Preview
 @Composable
-fun ChatUiState.Success.render(
+fun ChatUiState.Success.Render(
     onRefresh: () -> Unit = {},
     onSearch: () -> Unit = {},
     onChat: (Int) -> Unit = {}
@@ -114,17 +113,19 @@ fun ChatUiState.Success.render(
         ChatPullToRefreshLayoutData(
             isRefreshing = false,
             onRefresh = { onRefresh.invoke() },
-            contents = { Chat(
-                uiState = this,
-                onSearch = onSearch,
-                onChat = onChat)
+            contents = {
+                ChatList(
+                    uiState = this,
+                    onSearch = onSearch,
+                    onChat = onChat
+                )
             }
         )
     )
 }
 
 @Composable
-fun ChatUiState.Logout.render(
+fun ChatUiState.Logout.Render(
     modifier : Modifier,
     onSignIn: () -> Unit = {}
 ){

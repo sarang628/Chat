@@ -26,15 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Preview(showBackground = true)
 @Composable
-fun Chat(
+fun ChatList(
     uiState: ChatUiState.Success = ChatUiState.Success(),
     onSearch: () -> Unit = {},
     onChat: (Int) -> Unit = {},
@@ -46,47 +44,14 @@ fun Chat(
             items(3) {
                 when (it) {
                     0 -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(40.dp)
-                                .clickable { }
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.onPrimary),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = onSearch) {
-                                Icon(
-                                    imageVector = Icons.Default.Search, contentDescription = ""
-                                )
-                            }
-                            BasicTextField(
-                                value = text,
-                                onValueChange = { text = it },
-                                decorationBox = {
-                                    if(text.isEmpty()){
-                                        Text("search")
-                                    }
-                                    else {
-                                        it()
-                                    }
-                                }
-                            )
-                        }
+                        SearchBar(
+                            onSearch = onSearch,
+                            text = text,
+                            onText = { text = it }
+                        )
                     }
                     1 -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.height(120.dp),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(80.dp),
-                                imageVector = Icons.Default.AccountCircle,
-                                contentDescription = ""
-                            )
-                            Text(text = "Your note", fontSize = 13.sp)
-                        }
+                        YourNote()
                     }
                     2 -> {
                         Tabs()
@@ -97,5 +62,58 @@ fun Chat(
                 ChatRoomItem(uiState.chatItems[it], onClick = onChat)
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SearchBar(
+    onSearch: () -> Unit = {},
+    text : String = "",
+    onText : (String) -> Unit = {}
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clickable { }
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.onPrimary),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onSearch) {
+            Icon(
+                imageVector = Icons.Default.Search, contentDescription = ""
+            )
+        }
+        BasicTextField(
+            value = text,
+            onValueChange = { onText(it) },
+            decorationBox = {
+                if(text.isEmpty()){
+                    Text("search")
+                }
+                else {
+                    it()
+                }
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun YourNote(){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.height(120.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            modifier = Modifier.size(80.dp),
+            imageVector = Icons.Default.AccountCircle,
+            contentDescription = ""
+        )
+        Text(text = "Your note", fontSize = 13.sp)
     }
 }
