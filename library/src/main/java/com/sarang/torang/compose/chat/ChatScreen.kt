@@ -25,52 +25,52 @@ import com.sarang.torang.data.ChatUser
 
 @Composable
 fun ChatScreen(
-    roomId: Int,
-    viewModel: ChatViewModel = hiltViewModel(),
-    onBack: () -> Unit,
+    roomId      : Int           = -1,
+    viewModel   : ChatViewModel = hiltViewModel(),
+    onBack      : () -> Unit    = {},
 ) {
+    val uiState : ChatUiState   = viewModel.uiState
+    var show    : Boolean       by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = roomId) {
         if (roomId != -1)
             viewModel.loadUserByRoomId(roomId)
     }
-    val uiState = viewModel.uiState
-    var show by remember { mutableStateOf(false) }
+
+    val chatScreen : @Composable ()->Unit = {
+        ChatScreen(
+            uiState         = uiState,
+            onBack          = onBack,
+            onValueChange   = { viewModel.onMessageChange(it) },
+            onSend          = { viewModel.onSend() },
+            onPicture       = {
+                show = true
+            }
+        )
+    }
 
     LocalGalleryBottomSheetScaffold.current.invoke(
         GalleryBottomSheetScaffoldData(
-        show = show,
-        onHidden = { show = false },
-        onSend = {
-            viewModel.sendImages(it)
-            show = false
-        },
-        sheetContents = { LocalGallery.current.invoke() },
-        content = {
-            ChatScreen(
-                uiState = uiState,
-                onBack = onBack,
-                onValueChange = { viewModel.onMessageChange(it) },
-                onSend = { viewModel.onSend() },
-                onPicture = {
-                    show = true
-                }
-            )
-        }
+            show            = show,
+            onHidden        = { show = false },
+            onSend          = {
+                                viewModel.sendImages(it)
+                                show = false
+                              },
+            sheetContents   = { LocalGallery.current.invoke() },
+            content         = { chatScreen() }
+        )
     )
-    )
-
 }
-
-
 
 
 @Composable
 private fun ChatScreen(
-    uiState: ChatUiState,
-    onBack: () -> Unit,
-    onValueChange: (String) -> Unit,
-    onSend: () -> Unit,
-    onPicture: () -> Unit,
+    uiState         : ChatUiState,
+    onBack          : () -> Unit,
+    onValueChange   : (String) -> Unit,
+    onSend          : () -> Unit,
+    onPicture       : () -> Unit,
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(bottom = 16.dp, left = 8.dp, right = 8.dp),
