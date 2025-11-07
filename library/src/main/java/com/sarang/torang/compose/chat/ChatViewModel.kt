@@ -8,23 +8,38 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sarang.torang.usecase.GetChatUseCase
 import com.sarang.torang.usecase.GetUserByRoomIdUseCase
+import com.sarang.torang.usecase.IsSignInUseCase
 import com.sarang.torang.usecase.LoadChatUseCase
 import com.sarang.torang.usecase.SendChatUseCase
 import com.sarang.torang.usecase.SetSocketCloseUseCase
 import com.sarang.torang.usecase.SubScribeRoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val getUserUseCase: GetUserByRoomIdUseCase,
-    private val sendChatUseCase: SendChatUseCase,
-    private val getChatUseCase: GetChatUseCase,
-    private val loadChatUseCase: LoadChatUseCase,
-    private val setSetSocketCloseUseCase: SetSocketCloseUseCase,
-    private val setSubScribeRoomUseCase: SubScribeRoomUseCase,
+    private val getUserUseCase              : GetUserByRoomIdUseCase,
+    private val sendChatUseCase             : SendChatUseCase,
+    private val getChatUseCase              : GetChatUseCase,
+    private val loadChatUseCase             : LoadChatUseCase,
+    private val setSetSocketCloseUseCase    : SetSocketCloseUseCase,
+    private val setSubScribeRoomUseCase     : SubScribeRoomUseCase,
+    private val isSignInUseCase             : IsSignInUseCase
 ) : ViewModel() {
+
+    val isLogin : StateFlow<Boolean> =
+        isSignInUseCase.invoke()
+            .stateIn(scope           = viewModelScope,
+                     initialValue    = false,
+                     started         = SharingStarted.Eagerly)
+
+    var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading)
+        private set
 
     override fun onCleared() {
         super.onCleared()
@@ -35,9 +50,6 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
-
-    var uiState: ChatUiState by mutableStateOf(ChatUiState.Loading)
-        private set
 
     fun onMessageChange(message: String) {
         if (uiState is ChatUiState.Success) {

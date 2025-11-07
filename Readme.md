@@ -1,7 +1,7 @@
 # Chat 모듈
 
 토랑 앱에서 채팅 기능 적용을 위해 만든 모듈.
-STOMP 프로토콜을 사용 하여 소켓 통신 구현.
+STOMP 프로토콜 사용 소켓 통신 구현.
 
 # 주요 기능
 
@@ -19,11 +19,10 @@ STOMP 프로토콜을 사용 하여 소켓 통신 구현.
 
 # 채팅방에서 이미지 업로드 하기
 
-채팅방 이미지 업로드 전 이미지를 선택해야한다.
-BottomSheetScaffold를 활용해 이미지 선택 기능을 구현하기로 했다. 
+이미지 선택
+BottomSheetScaffold를 활용 이미지 선택 기능을 구현. 
 
 task: TorangBottomSheetModule에서 채팅방 이미지 업로드용 BottomSheet 만들기.
-
 
 기기 내 이미지 선택은 InstagramGalleryModule를 사용하고 있다.
 
@@ -34,4 +33,3 @@ task: InstagraModule에서 채팅방 용 이미지 업로드 화면 만들기
 이미지 선택까지 완료하였다면
 
 이미지 업로드 logic를 구현 해야한다.
-
