@@ -12,12 +12,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
 import com.sarang.torang.compose.chat.ChatTopAppBar
 import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
@@ -32,8 +34,8 @@ fun ChatScreen(
     onChat              : (Int) -> Unit,
     onRefresh           : () -> Unit,
 ) {
+    val uiState by viewmodel.uiState2.collectAsStateWithLifecycle()
     val coroutine = rememberCoroutineScope()
-    val uiState = viewmodel.uiState
     ChatScreen(
         uiState             = uiState,
         nickName            = viewmodel.nickName,
@@ -50,15 +52,16 @@ fun ChatScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
 private fun ChatScreen(
-    uiState    : ChatUiState,
-    nickName   : String,
-    onClose    : () -> Unit,
-    onSearch   : () -> Unit,
-    onChat     : (Int) -> Unit,
-    onRefresh  : () -> Unit,
-    onSignIn   : () -> Unit = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
+    uiState    : ChatUiState    = ChatUiState.Loading,
+    nickName   : String         = "",
+    onClose    : () -> Unit     = {},
+    onSearch   : () -> Unit     = {},
+    onChat     : (Int) -> Unit  = {},
+    onRefresh  : () -> Unit     = {},
+    onSignIn   : () -> Unit     = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
 ) {
     Scaffold(
         contentWindowInsets = WindowInsets(left = 12.dp, right = 12.dp),
@@ -71,8 +74,8 @@ private fun ChatScreen(
     ) {
         Box(
             modifier = Modifier
-                .padding(it)
                 .fillMaxSize()
+                .padding(it)
         ) {
             when (uiState) {
                 is ChatUiState.Loading -> {
@@ -80,7 +83,8 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Success -> {
-                    uiState.Render(
+                    Success(
+                        uiState = uiState,
                         onRefresh = onRefresh,
                         onSearch = onSearch,
                         onChat = onChat
@@ -92,7 +96,7 @@ private fun ChatScreen(
                 }
 
                 is ChatUiState.Logout -> {
-                    uiState.Render(
+                    Logout(
                         modifier = Modifier.align(Alignment.Center),
                         onSignIn = onSignIn
                     )
@@ -102,9 +106,10 @@ private fun ChatScreen(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun ChatUiState.Success.Render(
+private fun Success(
+    uiState: ChatUiState.Success = ChatUiState.Success(),
     onRefresh: () -> Unit = {},
     onSearch: () -> Unit = {},
     onChat: (Int) -> Unit = {}
@@ -115,7 +120,7 @@ fun ChatUiState.Success.Render(
             onRefresh = { onRefresh.invoke() },
             contents = {
                 ChatList(
-                    uiState = this,
+                    uiState = uiState,
                     onSearch = onSearch,
                     onChat = onChat
                 )
@@ -124,9 +129,10 @@ fun ChatUiState.Success.Render(
     )
 }
 
+@Preview(showBackground = true)
 @Composable
-fun ChatUiState.Logout.Render(
-    modifier : Modifier,
+private fun Logout(
+    modifier : Modifier = Modifier,
     onSignIn: () -> Unit = {}
 ){
     Column(
