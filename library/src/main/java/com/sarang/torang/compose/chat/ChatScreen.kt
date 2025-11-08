@@ -101,6 +101,23 @@ private fun Error(uiState: ChatUiState.Error = ChatUiState.Error("")){
         Text(modifier = Modifier.align(Alignment.Center),text = uiState.message)
     }
 }
+
+@Preview
+@Composable
+fun SuccessPreview(
+) {
+    var message by remember { mutableStateOf("") }
+    var list: List<Chat> by remember { mutableStateOf(listOf(
+        Chat(message = "test"),Chat(message = "test1"), Chat(message = "test2", isMe = false), Chat(message = "test", isMe = false)
+    )) }
+    ChatScreen(uiState = ChatUiState.Success(/*Preview*/
+        user = listOf(ChatUser(nickName = "nickName", id = "", profileUrl = "")),
+        message = message,
+        chats = list,
+        roomId = 0),
+        onValueChange = { message = it },
+    )
+}
 @Preview
 @Composable
 private fun Loading(){
@@ -153,20 +170,5 @@ private fun Success(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun ChatScreenPreview1(
-) {
-    var message by remember { mutableStateOf("") }
-    var list: List<Chat> by remember { mutableStateOf(listOf()) }
-    ChatScreen(uiState = ChatUiState.Success(/*Preview*/
-        user = listOf(ChatUser(nickName = "nickName", id = "", profileUrl = "")),
-        message = message,
-        chats = list,
-        roomId = 0),
-        onValueChange = { message = it },
-        )
 }
 

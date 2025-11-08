@@ -31,7 +31,7 @@ class ChatViewModel @Inject constructor(
     private val setSubScribeRoomUseCase     : SubScribeRoomUseCase,
     private val isSignInUseCase             : IsSignInUseCase
 ) : ViewModel() {
-
+    val tag : String = "__ChatViewModel"
     val isLogin : StateFlow<Boolean> =
         isSignInUseCase.invoke()
             .stateIn(scope           = viewModelScope,
@@ -43,7 +43,7 @@ class ChatViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("__ChatViewModel", "onCleared")
+        Log.d(tag, "onCleared")
         if (uiState is ChatUiState.Success) {
             (uiState as ChatUiState.Success).let {
                 setSetSocketCloseUseCase.invoke(it.roomId)
@@ -62,7 +62,7 @@ class ChatViewModel @Inject constructor(
     fun onSend() {
         if (uiState is ChatUiState.Success) {
             (uiState as ChatUiState.Success).let {
-                Log.d("__ChatViewModel", "onSend : ${it.message}")
+                Log.d(tag, "onSend : ${it.message}")
                 viewModelScope.launch {
                     sendChatUseCase.invoke(it.roomId, it.message)
                     uiState = it.copy(message = "")
@@ -72,13 +72,13 @@ class ChatViewModel @Inject constructor(
     }
 
     fun loadUserByRoomId(roomId: Int) {
-        Log.d("__ChatViewModel", "loadUserByRoomId : $roomId")
+        Log.d(tag, "loadUserByRoomId : $roomId")
         viewModelScope.launch {
             loadChatUseCase.invoke(roomId)
         }
         viewModelScope.launch {
             getUserUseCase.invoke(roomId).collect {
-                //Log.d("__ChatViewModel", "loaded user list : $it")
+                Log.d(tag, "loaded user list : ${it?.size}")
                 if (uiState is ChatUiState.Loading)
                     uiState = ChatUiState.Success(
                         user = it ?: listOf(), id = "", roomId = roomId
@@ -90,7 +90,7 @@ class ChatViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getChatUseCase.invoke(roomId).collect {
-                //Log.d("__ChatViewModel", "loaded chat list : $it")
+                Log.d(tag, "loaded chat list : ${it.size}")
                 if (uiState is ChatUiState.Loading)
                     uiState = ChatUiState.Success(
                         chats = it, id = "", roomId = roomId
@@ -103,7 +103,7 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             setSubScribeRoomUseCase.invoke(roomId, viewModelScope).collect {
-                Log.d("__ChatViewModel", "event : $it")
+                Log.d(tag, "event : $it")
             }
         }
     }

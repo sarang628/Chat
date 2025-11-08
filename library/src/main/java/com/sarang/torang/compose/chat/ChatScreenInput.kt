@@ -16,16 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sarang.torang.R
 
+@Preview
 @Composable
 internal fun ChatScreenInput(
-    modifier: Modifier = Modifier,
-    uiState: ChatUiState.Success,
-    onValueChange: (String) -> Unit,
-    onSend: () -> Unit,
-    onPicture: () -> Unit,
+    modifier        : Modifier              = Modifier,
+    uiState         : ChatUiState.Success   = ChatUiState.Success(),
+    onValueChange   : (String) -> Unit      = {},
+    onSend          : () -> Unit            = {},
+    onPicture       : () -> Unit            = {}
 ) {
     TextField(value = uiState.message,
         onValueChange = onValueChange,
