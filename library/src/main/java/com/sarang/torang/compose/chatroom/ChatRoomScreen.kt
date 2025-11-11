@@ -1,9 +1,10 @@
 package com.sarang.torang.compose.chatroom
 
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,13 +23,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
 import com.sarang.torang.compose.chat.ChatTopAppBar
 import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
@@ -56,6 +54,9 @@ fun ChatRoomScreen(
                 viewmodel.refresh()
                 onRefresh.invoke()
             }
+        },
+        onDelete            = {
+            viewmodel.deleteRoom(it)
         }
     )
 }
@@ -71,6 +72,7 @@ private fun ChatRoomScreen(
     onChat     : (Int) -> Unit  = {},
     onRefresh  : () -> Unit     = {},
     onSignIn   : () -> Unit     = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
+    onDelete   : (Int) -> Unit  = {},
 ) {
     Scaffold(
         topBar = {
@@ -95,7 +97,7 @@ private fun ChatRoomScreen(
                         uiState = uiState,
                         onRefresh = onRefresh,
                         onSearch = onSearch,
-                        onChat = onChat
+                        onChat = onChat,
                     )
                 }
 
@@ -118,12 +120,13 @@ private fun ChatRoomScreen(
 @Preview(showBackground = true)
 @Composable
 private fun Success(
-    uiState: ChatUiState.Success = ChatUiState.Success(),
-    onRefresh: () -> Unit = {},
-    onSearch: () -> Unit = {},
-    onChat: (Int) -> Unit = {},
+    uiState     : ChatUiState.Success   = ChatUiState.Success(),
+    onRefresh   : () -> Unit            = {},
+    onSearch    : () -> Unit            = {},
+    onChat      : (Int) -> Unit         = {},
+    onDelete    : (Int) -> Unit         = {},
 ){
-    var showModal by remember { mutableStateOf(false) }
+    var showModalWithRoomId by remember { mutableStateOf(0) }
     LocalChatPullToRefreshLayout.current.invoke(
         ChatPullToRefreshLayoutData(
             isRefreshing = false,
@@ -133,45 +136,100 @@ private fun Success(
                     uiState = uiState,
                     onSearch = onSearch,
                     onChat = onChat,
-                    onLongClick = { showModal = true }
+                    onLongClick = { showModalWithRoomId = it }
                 )
             }
         )
     )
 
-    if(showModal){
+    if(showModalWithRoomId > 0){
         ModalBottomSheet(
-            onDismissRequest = { showModal = false }
+            onDismissRequest = { showModalWithRoomId = 0 }
         ) {
-
+            BottomMenu(
+                uiState.chatItems.firstOrNull {
+                    it.id == showModalWithRoomId
+                }?.nickName ?: "",
+                onDelete                = {
+                                            onDelete(showModalWithRoomId)
+                                            showModalWithRoomId = 0
+                                          },
+                onFix                   = { showModalWithRoomId = 0 },
+                onTurnOffCallAlarm      = { showModalWithRoomId = 0 },
+                onTurnOffMessageAlarm   = { showModalWithRoomId = 0 }
+            )
         }
     }
 }
 
 @Preview
 @Composable
-private fun BottomMenu(){
+private fun BottomMenu(
+    nickName                : String        = "",
+    onFix                   : () -> Unit    = {},
+    onDelete                : () -> Unit    = {},
+    onTurnOffMessageAlarm   : () -> Unit    = {},
+    onTurnOffCallAlarm      : () -> Unit    = {}
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            modifier = Modifier.height(50.dp),
-            text = "sryang",
-        )
-        Text(
-            modifier = Modifier.height(16.dp),
-            text = "고정"
-        )
-        Text(
-            modifier = Modifier.height(16.dp),
-            text = "삭제"
-        )
-        Text(
-            modifier = Modifier.height(16.dp),
-            text = "메시지 알림 해제"
-        )
-        Text(
-            modifier = Modifier.height(16.dp),
-            text = "통화 알림 해제"
-        )
+        Row(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = nickName)
+        }
+        Row(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .clickable(onClick = onFix),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "고정"
+            )
+        }
+        Row(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .clickable(onClick = onDelete),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "삭제"
+            )
+        }
+        Row(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .clickable(onClick = onTurnOffMessageAlarm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "메시지 알림 해제"
+            )
+        }
+        Row(
+            modifier = Modifier
+                .height(50.dp)
+                .fillMaxWidth()
+                .clickable(onClick = onTurnOffCallAlarm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = "통화 알림 해제"
+            )
+        }
     }
 }
 
