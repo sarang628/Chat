@@ -6,15 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sarang.torang.usecase.GetChatUseCase
-import com.sarang.torang.usecase.GetUserByRoomIdUseCase
+import com.sarang.torang.usecase.GetChatsUseCase
+import com.sarang.torang.usecase.GetUsersByRoomIdUseCase
 import com.sarang.torang.usecase.IsSignInUseCase
 import com.sarang.torang.usecase.LoadChatUseCase
 import com.sarang.torang.usecase.SendChatUseCase
 import com.sarang.torang.usecase.SetSocketCloseUseCase
 import com.sarang.torang.usecase.SubScribeRoomUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,9 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val getUserUseCase              : GetUserByRoomIdUseCase,
+    private val getUserUseCase              : GetUsersByRoomIdUseCase,
     private val sendChatUseCase             : SendChatUseCase,
-    private val getChatUseCase              : GetChatUseCase,
+    private val getChatUseCase              : GetChatsUseCase,
     private val loadChatUseCase             : LoadChatUseCase,
     private val setSetSocketCloseUseCase    : SetSocketCloseUseCase,
     private val setSubScribeRoomUseCase     : SubScribeRoomUseCase,
@@ -87,6 +86,9 @@ class ChatViewModel @Inject constructor(
                     uiState = (uiState as ChatUiState.Success).copy(user = it ?: listOf())
                 }
             }
+        }
+        viewModelScope.launch {
+            loadChatUseCase.invoke(roomId)
         }
         viewModelScope.launch {
             getChatUseCase.invoke(roomId).collect {

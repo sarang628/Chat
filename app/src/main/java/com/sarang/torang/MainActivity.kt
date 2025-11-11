@@ -53,6 +53,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 @Composable
 fun ChatNavigation(loginRepository : LoginRepository){
     val navController = rememberNavController()
@@ -63,11 +65,11 @@ fun ChatNavigation(loginRepository : LoginRepository){
     NavHost(navController = navController, startDestination = "menu"){
         composable("menu"){
             Column {
-                Button({navController.navigate("LoginRepositoryTest")}) {
-                    Text("LoginRepositoryTest")
-                }
                 Button({navController.navigate("ChatScreen")}) {
                     Text("ChatScreen")
+                }
+                Button({navController.navigate("LoginRepositoryTest")}) {
+                    Text("LoginRepositoryTest")
                 }
             }
         }
