@@ -5,21 +5,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
 import com.sarang.torang.compose.chat.ChatTopAppBar
 import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
@@ -27,7 +36,7 @@ import com.sarang.torang.data.ChatUser
 import kotlinx.coroutines.launch
 
 @Composable
-fun ChatScreen(
+fun ChatRoomScreen(
     viewmodel           : ChatRoomViewModel = hiltViewModel(),
     onClose             : () -> Unit,
     onSearch            : () -> Unit,
@@ -36,7 +45,7 @@ fun ChatScreen(
 ) {
     val uiState by viewmodel.uiState2.collectAsStateWithLifecycle()
     val coroutine = rememberCoroutineScope()
-    ChatScreen(
+    ChatRoomScreen(
         uiState             = uiState,
         nickName            = viewmodel.nickName,
         onClose             = onClose,
@@ -54,7 +63,7 @@ fun ChatScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-private fun ChatScreen(
+private fun ChatRoomScreen(
     uiState    : ChatUiState    = ChatUiState.Loading,
     nickName   : String         = "",
     onClose    : () -> Unit     = {},
@@ -64,7 +73,6 @@ private fun ChatScreen(
     onSignIn   : () -> Unit     = { Log.w("__ChatScreen", "onSignIn is not implemented!") },
 ) {
     Scaffold(
-        contentWindowInsets = WindowInsets(left = 12.dp, right = 12.dp),
         topBar = {
             ChatTopAppBar(
                 nickName = nickName,
@@ -106,14 +114,16 @@ private fun ChatScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 private fun Success(
     uiState: ChatUiState.Success = ChatUiState.Success(),
     onRefresh: () -> Unit = {},
     onSearch: () -> Unit = {},
-    onChat: (Int) -> Unit = {}
+    onChat: (Int) -> Unit = {},
 ){
+    var showModal by remember { mutableStateOf(false) }
     LocalChatPullToRefreshLayout.current.invoke(
         ChatPullToRefreshLayoutData(
             isRefreshing = false,
@@ -122,11 +132,47 @@ private fun Success(
                 ChatList(
                     uiState = uiState,
                     onSearch = onSearch,
-                    onChat = onChat
+                    onChat = onChat,
+                    onLongClick = { showModal = true }
                 )
             }
         )
     )
+
+    if(showModal){
+        ModalBottomSheet(
+            onDismissRequest = { showModal = false }
+        ) {
+
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BottomMenu(){
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            modifier = Modifier.height(50.dp),
+            text = "sryang",
+        )
+        Text(
+            modifier = Modifier.height(16.dp),
+            text = "고정"
+        )
+        Text(
+            modifier = Modifier.height(16.dp),
+            text = "삭제"
+        )
+        Text(
+            modifier = Modifier.height(16.dp),
+            text = "메시지 알림 해제"
+        )
+        Text(
+            modifier = Modifier.height(16.dp),
+            text = "통화 알림 해제"
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -150,7 +196,7 @@ private fun Logout(
 @Preview(showBackground = true)
 @Composable
 fun ChatScreenPreview() {
-    ChatScreen(uiState = ChatUiState.Success(
+    ChatRoomScreen(uiState = ChatUiState.Success(
         chatItems = listOf(
             ChatRoomUiState(
                 0,

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,31 +37,31 @@ fun ChatList(
     uiState: ChatUiState.Success = ChatUiState.Success(),
     onSearch: () -> Unit = {},
     onChat: (Int) -> Unit = {},
+    onLongClick: (Int) -> Unit = {},
 ) {
     var text by remember { mutableStateOf("") }
-
-    Column {
-        LazyColumn {
-            items(3) {
-                when (it) {
-                    0 -> {
-                        SearchBar(
-                            onSearch = onSearch,
-                            text = text,
-                            onText = { text = it }
-                        )
-                    }
-                    1 -> {
-                        YourNote()
-                    }
-                    2 -> {
-                        Tabs()
-                    }
+    LazyColumn {
+        items(2) {
+            when (it) {
+                0 -> {
+                    SearchBar(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        onSearch = onSearch,
+                        text = text,
+                        onText = { text = it }
+                    )
+                }
+                1 -> {
+                    YourNote()
                 }
             }
-            items(uiState.chatItems.size) {
-                ChatRoomItem(uiState.chatItems[it], onClick = onChat)
-            }
+        }
+        items(uiState.chatItems.size) {
+            ChatRoomItem(
+                uiState = uiState.chatItems[it],
+                onClick = onChat,
+                onLongClick = onLongClick
+            )
         }
     }
 }
@@ -68,6 +69,7 @@ fun ChatList(
 @Preview
 @Composable
 private fun SearchBar(
+    modifier : Modifier = Modifier,
     onSearch: () -> Unit = {},
     text : String = "",
     onText : (String) -> Unit = {}

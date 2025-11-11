@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.sarang.torang.compose.chatroom.ChatScreen
+import com.sarang.torang.compose.chatroom.ChatRoomScreen
 import com.sarang.torang.di.chat_di.provideChatScreen
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.repository.test.LoginRepositoryTest
@@ -127,9 +127,9 @@ private fun CreateOneToOneChatRoomTest(onClick: (Int) -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun ChatScreenPreview() {
+fun ChatRoomScreenPreview() {
     TorangTheme {
-        ChatScreen(
+        ChatRoomScreen(
             onClose = {},
             onChat = {},
             onSearch = {},

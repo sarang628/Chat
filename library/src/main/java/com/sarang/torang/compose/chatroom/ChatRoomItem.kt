@@ -1,7 +1,9 @@
 package com.sarang.torang.compose.chatroom
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
@@ -29,16 +32,23 @@ import com.sarang.torang.compose.chat.ChatImageLoaderData
 import com.sarang.torang.compose.chat.LocalChatImageLoader
 import com.sarang.torang.data.ChatUser
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatRoomItem(
     uiState: ChatRoomUiState,
-    onClick: (Int) -> Unit
+    onClick: (Int) -> Unit = {},
+    onLongClick: (Int) -> Unit = {},
 ) {
     ConstraintLayout(
         modifier = Modifier
             .height(70.dp)
-            .clickable { onClick.invoke(uiState.id) }
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .combinedClickable(
+                onClick = { onClick.invoke(uiState.id) },
+                onLongClick = { onLongClick.invoke(uiState.id) }
+            )
+        ,
         constraintSet = ConstraintSet {
             val image = createRefFor("image")
             val camera = createRefFor("camera")
@@ -47,7 +57,7 @@ fun ChatRoomItem(
             constrain(image) {
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
-                start.linkTo(parent.start)
+                start.linkTo(parent.start,)
             }
 
             constrain(camera) {
@@ -59,14 +69,14 @@ fun ChatRoomItem(
             constrain(nickName) {
                 top.linkTo(image.top)
                 bottom.linkTo(seenTime.top)
-                start.linkTo(image.end, 8.dp)
+                start.linkTo(image.end, 12.dp)
                 end.linkTo(camera.start)
                 width = Dimension.fillToConstraints
             }
             constrain(seenTime) {
                 top.linkTo(nickName.bottom)
                 bottom.linkTo(image.bottom)
-                start.linkTo(image.end, 8.dp)
+                start.linkTo(image.end, 12.dp)
             }
         }
     ) {
@@ -120,12 +130,13 @@ fun ChatRoomItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Text(text = uiState.seenTime, modifier = Modifier.layoutId("seenTime"))
+        Text(text = uiState.seenTimeTxt, modifier = Modifier.layoutId("seenTime"), fontSize = 13.sp)
         IconButton(modifier = Modifier.layoutId("camera"),
             onClick = { /*TODO*/ }) {
             Icon(
                 modifier = Modifier.size(25.dp),
                 painter = painterResource(id = R.drawable.camera),
+                tint = Color.Gray,
                 contentDescription = ""
             )
         }
@@ -135,10 +146,10 @@ fun ChatRoomItem(
 @Preview(showBackground = true)
 @Composable
 fun ChatRoomItemPreview() {
-    ChatRoomItem(
+    ChatRoomItem(/*Preview*/
         uiState = ChatRoomUiState(
             0,
-            "Torang",
+            "2025-10-10 10:10:00",
             listOf(
                 ChatUser(nickName = "amy", profileUrl = "1", id = "id"),
                 ChatUser(nickName = "jhone", profileUrl = "1", id = "id"),

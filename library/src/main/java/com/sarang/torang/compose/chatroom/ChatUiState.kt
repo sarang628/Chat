@@ -2,6 +2,8 @@ package com.sarang.torang.compose.chatroom
 
 import android.util.Log
 import com.sarang.torang.data.ChatUser
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 sealed interface ChatUiState {
     object Loading : ChatUiState
@@ -19,6 +21,11 @@ data class ChatRoomUiState(
     val seenTime: String,
     val list: List<ChatUser> = listOf(),
 )
+
+val timeFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.KOREA)
+
+val ChatRoomUiState.seenTimeTxt : String get() =
+    "${((System.currentTimeMillis() - timeFormat.parse(this.seenTime).time)/(1000 * 60 * 60 * 24))}일 전"
 
 val ChatRoomUiState.isMultiple: Boolean get() = list.size > 1
 val ChatRoomUiState.profileUrl: String
