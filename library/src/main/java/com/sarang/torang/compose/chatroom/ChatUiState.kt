@@ -25,7 +25,11 @@ data class ChatRoomUiState(
 val timeFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.KOREA)
 
 val ChatRoomUiState.seenTimeTxt : String get() =
-    "${((System.currentTimeMillis() - timeFormat.parse(this.seenTime).time)/(1000 * 60 * 60 * 24))}일 전"
+    try {
+        "${((System.currentTimeMillis() - timeFormat.parse(this.seenTime).time) / (1000 * 60 * 60 * 24))}일 전"
+    }catch (e : Exception){
+        ""
+    }
 
 val ChatRoomUiState.isMultiple: Boolean get() = list.size > 1
 val ChatRoomUiState.profileUrl: String

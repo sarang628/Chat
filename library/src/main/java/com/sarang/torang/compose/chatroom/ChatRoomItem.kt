@@ -35,12 +35,13 @@ import com.sarang.torang.data.ChatUser
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatRoomItem(
+    modifier: Modifier = Modifier,
     uiState: ChatRoomUiState,
     onClick: (Int) -> Unit = {},
     onLongClick: (Int) -> Unit = {},
 ) {
     ConstraintLayout(
-        modifier = Modifier
+        modifier = modifier
             .height(70.dp)
             .fillMaxWidth()
             .padding(horizontal = 8.dp)

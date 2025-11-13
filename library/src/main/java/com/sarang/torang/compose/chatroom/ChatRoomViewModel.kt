@@ -38,7 +38,6 @@ class ChatRoomViewModel @Inject constructor(
         ) { isLoggedIn, chatRoom ->
             when {
                 !isLoggedIn -> ChatUiState.Logout
-                chatRoom.isEmpty() -> ChatUiState.Error("채팅방이 없습니다.")
                 else -> ChatUiState.Success(chatItems = chatRoom)
             }
         }.stateIn(

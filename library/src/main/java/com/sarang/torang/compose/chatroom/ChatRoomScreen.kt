@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
+import com.sarang.torang.compose.chat.ChatScreen
 import com.sarang.torang.compose.chat.ChatTopAppBar
 import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
 import com.sarang.torang.data.ChatUser
@@ -62,7 +64,6 @@ fun ChatRoomScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 private fun ChatRoomScreen(
     uiState    : ChatUiState    = ChatUiState.Loading,
@@ -98,11 +99,12 @@ private fun ChatRoomScreen(
                         onRefresh = onRefresh,
                         onSearch = onSearch,
                         onChat = onChat,
+                        onDelete = onDelete
                     )
                 }
 
                 is ChatUiState.Error -> {
-
+                    Text(uiState.message)
                 }
 
                 is ChatUiState.Logout -> {
@@ -126,7 +128,7 @@ private fun Success(
     onChat      : (Int) -> Unit         = {},
     onDelete    : (Int) -> Unit         = {},
 ){
-    var showModalWithRoomId by remember { mutableStateOf(0) }
+    var showModalWithRoomId by remember { mutableIntStateOf(0) }
     LocalChatPullToRefreshLayout.current.invoke(
         ChatPullToRefreshLayoutData(
             isRefreshing = false,
@@ -253,11 +255,11 @@ private fun Logout(
 
 @Preview(showBackground = true)
 @Composable
-fun ChatScreenPreview() {
-    ChatRoomScreen(uiState = ChatUiState.Success(
+fun ChatScreenSuccessPreview() {
+    var uiState by remember { mutableStateOf(ChatUiState.Success(/*Preview*/
         chatItems = listOf(
             ChatRoomUiState(
-                0,
+                1,
                 "10min",
                 listOf(
                     ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
@@ -266,7 +268,7 @@ fun ChatScreenPreview() {
                 )
             ),
             ChatRoomUiState(
-                0,
+                2,
                 "15min",
                 listOf(
                     ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
@@ -279,7 +281,7 @@ fun ChatScreenPreview() {
                 )
             ),
             ChatRoomUiState(
-                0,
+                3,
                 "20min",
                 listOf(
                     ChatUser(nickName = "nickName", profileUrl = "1", id = "id"),
@@ -287,15 +289,31 @@ fun ChatScreenPreview() {
                 )
             ),
             ChatRoomUiState(
-                0,
+                3,
                 "26min",
                 listOf(ChatUser(nickName = "nickName", profileUrl = "1", id = "id"))
             ),
         )
-    ), nickName = "nickName",
+    )) }
+    ChatRoomScreen(uiState = uiState,
+        nickName = "nickName",
         onClose = {},
         onChat = {},
         onSearch = {},
         onRefresh = {}
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatScreenLoadingPreview() {
+    ChatRoomScreen(uiState = ChatUiState.Loading)
+}
+
+@Preview
+@Composable
+fun ChatScreenEmptyPreview(){
+    ChatRoomScreen(
+        uiState = ChatUiState.Success()
+    ) {  }
 }
