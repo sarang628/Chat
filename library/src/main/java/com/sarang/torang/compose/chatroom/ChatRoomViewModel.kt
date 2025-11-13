@@ -68,9 +68,7 @@ class ChatRoomViewModel @Inject constructor(
         loadChatRoomUseCase.invoke()
     }
 
-    fun deleteRoom(roomId: Int) {
-        viewModelScope.launch {
-            deleteChatRoomUseCase.invoke(roomId)
-        }
+    suspend fun deleteRoom(roomId: Int) {
+        deleteChatRoomUseCase.invoke(roomId)
     }
 }

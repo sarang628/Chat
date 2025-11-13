@@ -2,18 +2,27 @@ package com.sarang.torang.compose.chatroom
 
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,13 +37,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sarang.torang.compose.chat.ChatPullToRefreshLayoutData
-import com.sarang.torang.compose.chat.ChatScreen
 import com.sarang.torang.compose.chat.ChatTopAppBar
 import com.sarang.torang.compose.chat.LocalChatPullToRefreshLayout
 import com.sarang.torang.data.ChatUser
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatRoomScreen(
     viewmodel           : ChatRoomViewModel = hiltViewModel(),
@@ -45,6 +55,7 @@ fun ChatRoomScreen(
 ) {
     val uiState by viewmodel.uiState2.collectAsStateWithLifecycle()
     val coroutine = rememberCoroutineScope()
+    var deleteId by remember { mutableIntStateOf(-1) }
     ChatRoomScreen(
         uiState             = uiState,
         nickName            = viewmodel.nickName,
@@ -58,9 +69,57 @@ fun ChatRoomScreen(
             }
         },
         onDelete            = {
-            viewmodel.deleteRoom(it)
+            deleteId = it
         }
     )
+
+    if(deleteId > 0){
+        DeleteDialog(
+            onDismissRequest = {
+                deleteId = -1
+            },
+            onDelete = {
+                coroutine.launch {
+                    viewmodel.deleteRoom(deleteId)
+                    deleteId = -1
+                }
+            }
+        )
+    }
+
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun DeleteDialog(onDelete: () -> Unit = {}, onDismissRequest: () -> Unit = {}) {
+    BasicAlertDialog(onDismissRequest = onDismissRequest){
+        Surface(
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight(),
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ){
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text("채팅방을 삭제 하시겠습니까?")
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.width(200.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Button(onDelete) {
+                        Text("예")
+
+                    }
+                    Button(onDismissRequest) {
+                        Text("아니오")
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
