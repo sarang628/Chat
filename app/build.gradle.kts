@@ -135,4 +135,10 @@ dependencies {
     implementation(libs.torangBottomSheet)
     implementation(libs.composePermissionTest)
     implementation(libs.accompanist.permissions)
+    implementation(libs.shortForm)
+    implementation(libs.dialogsBox)
+    implementation(libs.coil)
+    implementation(libs.comment)
+    implementation(libs.report)
+    implementation(libs.constraintlayout.compose)
 }
